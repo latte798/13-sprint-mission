@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.repository;
 
 
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.repository.querydsl.MessageQueryDsl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -13,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public interface MessageRepository extends JpaRepository<Message, UUID> {
+public interface MessageRepository extends JpaRepository<Message, UUID>, MessageQueryDsl {
     @Query(value = "SELECT * FROM messages WHERE channel_id = ? ORDER BY created_at DESC",nativeQuery = true)
     List<Message> findByChannelId(@Param("channelId") UUID channelId);
 
@@ -27,13 +28,11 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("SELECT m FROM Message m WHERE m.channel.id = :id AND m.createdAt < :ctime")
     Slice<Message> findByChannelWithCursor(@Param("id") UUID channelId, Pageable pageable,@Param("ctime") Instant ctime);
 
-    @Query(
-            """
-            select m
-            from Message m
-            order by m.createdAt desc
-            limit 1
-            """
-    )
-    List<Message> findLastestMessageByChannel(UUID channelId);
+
+    @Query("select msg.id from Message msg where msg.channel.id = :id and msg.createdAt <= :ctime order by msg.createdAt desc")
+    Slice<UUID> findMessageIdsBuChannelIdWithCursor(
+            @Param("id") UUID id,
+            Pageable pageable,
+            @Param("ctime") Instant ctime
+    );
 }

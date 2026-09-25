@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.repository.querydsl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Query;
 import com.querydsl.core.group.AbstractGroupExpression;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ConstructorExpression;
@@ -47,21 +46,25 @@ public class ChannelQueryDslImpl implements ChannelQueryDsl {
 
     @Override
     public Optional<ChannelProjection> getChannelById(UUID id){
+        if (id == null) return Optional.empty();
+
         List<QueryDto> result = jpaQuery(
                 channelQueryCondition(
                     channel.id.eq(id)
                 )
         );
 
-        return convertProjectionFromDto(result).stream().findFirst();
+        return convertProjectionFromDto(result).values().stream().findFirst();
     }
 
 
     @Override
-    public Collection<ChannelProjection> getChannelsFromUserId(UUID id) {
+    public Map<UUID,ChannelProjection> getChannelsFromUserId(UUID id) {
+        if (id == null) return new HashMap<>();
+
         List<QueryDto> result = jpaQuery(
                 channelQueryCondition(
-                        user.id.eq(id),
+                        readStatus.user.id.eq(id),
                         channel.type.eq(ChannelType.PUBLIC)
                 )
         );
@@ -98,7 +101,7 @@ public class ChannelQueryDslImpl implements ChannelQueryDsl {
     QueryDsl 라이브러리가 transform() 매서드 내부 버그가 있음.
     때문에 쿼리 후, 직접 데이터를 조립하는 로직으로 변환.
      */
-    private Collection<ChannelProjection> convertProjectionFromDto(List<QueryDto> dtoList){
+    private Map<UUID,ChannelProjection> convertProjectionFromDto(List<QueryDto> dtoList){
         return dtoList.stream()
                 .collect(
                         Collectors.groupingBy(
@@ -123,7 +126,7 @@ public class ChannelQueryDslImpl implements ChannelQueryDsl {
                                         }
                                 )
                         )
-                ).values();
+                );
     }
 
     // channel query condition.

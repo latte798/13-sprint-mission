@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.storage;
 
+import com.sprint.mission.discodeit.config.storage.LocalConfig;
 import com.sprint.mission.discodeit.dto.response.BinaryContentDto;
-import jakarta.annotation.PostConstruct;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -13,77 +12,41 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.UUID;
 
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "local", matchIfMissing = true)
 @Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
-    @Value(value = "${discodeit.storage.local.root-path}")
-    private Path root;
-
-    @PostConstruct
-    void init(){
-
-        log.debug("local storage check - {}", Path.of(root.toString()));
-
-        if (Files.notExists(root)){
-            try {
-                Files.createDirectories(root);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     @Override
     public UUID put(UUID id, byte[] content) {
-        try (
-                OutputStream out = Files.newOutputStream(resolvePath(id));
-                BufferedOutputStream but = new BufferedOutputStream(out)
-                ){
-
-            but.write(content);
-
-            log.debug("file write on path - {}", resolvePath(id));
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        LocalConfig.writeFile(id.toString(), content);
         return id;
     }
     @Override
-    public InputStream get(UUID id) throws IOException{
-        InputStream in = Files.newInputStream(resolvePath(id));
-        return new BufferedInputStream(in);
+    public InputStream get(UUID id) throws IOException {
+        return LocalConfig.input(id.toString());
     }
 
     @Override
     public ResponseEntity<Resource> download(BinaryContentDto binaryContentDto) {
         try{
-            InputStream in = get(binaryContentDto.id());
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    new InputStreamResource(in)
-            );
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(
+                            new InputStreamResource(LocalConfig.input(binaryContentDto.fileName()))
+                    );
         } catch (IOException e){
+            log.error("LocalBinaryContentStorage - 파일 리소스 응답 생성 에러 - {}",binaryContentDto.fileName());
             throw new RuntimeException(e);
         }
+
     }
 
+    @Override
     public void delete(UUID id){
-        try {
-            Files.delete(resolvePath(id));
-        } catch (IOException e) {
-            log.error("file delete exception- id : {}",id, e);
-        }
-    }
-
-    private Path resolvePath(UUID id){
-        return root.resolve(id.toString());
+        LocalConfig.delete(id.toString());
     }
 
 }

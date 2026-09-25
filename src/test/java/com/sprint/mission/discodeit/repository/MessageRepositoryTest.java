@@ -180,19 +180,6 @@ public class MessageRepositoryTest {
 
     }
 
-    @Test
-    @DisplayName("query lastest message test")
-    void testLastestMessageQuery() {
-        // given
-        List<UUID> channelIds = setup();
-        // when
-        // then
-        List<Message> lastest = messageRepository.findLastestMessageByChannel(channelIds.get(0));
 
-        assertThat(lastest).hasSize(1);
-        assertThat(lastest.get(0).getCreatedAt()).isEqualTo("2026-08-02T09:00:00Z");
-
-
-    }
 
 }
