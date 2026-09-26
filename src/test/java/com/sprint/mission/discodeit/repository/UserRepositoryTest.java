@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.config.QueryDslTestConfig;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -68,7 +66,7 @@ public class UserRepositoryTest {
 
     @Test
     @DisplayName("test user find by Username")
-    void testFindByUsername(){;
+    void testFindByUsername(){
         List<User> res = userRepository.findByUsername("김숙희");
 
         assertThat(res).hasSize(1);

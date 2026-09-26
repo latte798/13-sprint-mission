@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.UserDuplicatedException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MapStructMapper;
-import com.sprint.mission.discodeit.mapper.MapperMethod;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.SessionService;
