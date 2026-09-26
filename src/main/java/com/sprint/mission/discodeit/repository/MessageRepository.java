@@ -20,15 +20,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID>, Message
 
     Slice<Message> findByChannelIdOrderByCreatedAtDesc(@Param("channelId") UUID channelId, Pageable pageable);
 
-    @EntityGraph(attributePaths = {"author","attachment"})
-    @Query("SELECT m FROM Message m WHERE m.channel.id = :id")
-    Slice<Message> findByChannelIdForMessageDto(@Param("id")UUID channelId, Pageable pageable);
-
-    @EntityGraph(attributePaths = {"author","attachment"})
-    @Query("SELECT m FROM Message m WHERE m.channel.id = :id AND m.createdAt < :ctime")
-    Slice<Message> findByChannelWithCursor(@Param("id") UUID channelId, Pageable pageable,@Param("ctime") Instant ctime);
-
-
     @Query("select msg.id from Message msg where msg.channel.id = :id and msg.createdAt <= :ctime order by msg.createdAt desc")
     Slice<UUID> findMessageIdsBuChannelIdWithCursor(
             @Param("id") UUID id,

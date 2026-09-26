@@ -200,7 +200,8 @@ public class BasicChannelService implements ChannelService {
 
     // 현재 세션 사용자의 인가 체크. (channel manager)
     private void checkAuth(Authentication auth){
-        Collection<? extends GrantedAuthority> res = roleHierarchy.getReachableGrantedAuthorities(auth.getAuthorities());
+        Collection<? extends GrantedAuthority> res = roleHierarchy
+                .getReachableGrantedAuthorities(auth.getAuthorities());
 
         boolean has = res.stream()
                 .map(GrantedAuthority::getAuthority)
@@ -238,7 +239,9 @@ public class BasicChannelService implements ChannelService {
                 .map(
                         userProjection -> mapStructMapper.toDto(
                                 userProjection,
-                                profileList.get(userProjection.profileId()),
+                                profileList.isEmpty()
+                                        ? null
+                                        : profileList.get(userProjection.profileId()),
                                 sessionService.userOnline(userProjection.username())
                         )
                 ).collect(Collectors.toMap(

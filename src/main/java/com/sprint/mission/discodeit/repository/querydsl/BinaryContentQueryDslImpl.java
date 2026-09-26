@@ -52,6 +52,7 @@ public class BinaryContentQueryDslImpl implements BinaryContentQueryDsl {
 
     @Override
     public BinaryContent saveWithMultipartCommand(MultipartFileDto command){
+        if (command == null) return null;
         BinaryContent metadata = new BinaryContent(
                 command.filename(),
                 command.contentType(),

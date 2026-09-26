@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.UUID;
 
 @Component
@@ -20,14 +21,16 @@ import java.util.UUID;
 @Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
+    private final LocalConfig localConfig;
+
     @Override
     public UUID put(UUID id, byte[] content) {
-        LocalConfig.writeFile(id.toString(), content);
+        writeFile(id.toString(), content);
         return id;
     }
     @Override
     public InputStream get(UUID id) throws IOException {
-        return LocalConfig.input(id.toString());
+        return input(id.toString());
     }
 
     @Override
@@ -35,7 +38,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         try{
             return ResponseEntity.status(HttpStatus.OK)
                     .body(
-                            new InputStreamResource(LocalConfig.input(binaryContentDto.fileName()))
+                            new InputStreamResource(input(binaryContentDto.fileName()))
                     );
         } catch (IOException e){
             log.error("LocalBinaryContentStorage - 파일 리소스 응답 생성 에러 - {}",binaryContentDto.fileName());
@@ -46,7 +49,38 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     @Override
     public void delete(UUID id){
-        LocalConfig.delete(id.toString());
+        delete(id.toString());
+    }
+
+
+    /*
+    데이터 입출력 매서드
+     */
+    private void writeFile(String path, byte[] contents){
+        try (BufferedOutputStream stream = output(path)) {
+            stream.write(contents);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void delete(String path) {
+        try {
+            Files.delete(localConfig.resolvePath(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+    Stream 반환 매서드
+     */
+    private BufferedOutputStream output(String path) throws IOException {
+        return new BufferedOutputStream(Files.newOutputStream(localConfig.resolvePath(path)));
+    }
+
+    private BufferedInputStream input(String path) throws IOException {
+        return new BufferedInputStream(Files.newInputStream(localConfig.resolvePath(path)));
     }
 
 }

@@ -27,10 +27,12 @@ public interface MapStructMapper {
     /*
     userDto 매핑 매서드
      */
-    @Mapping(source = "binaryContentDto", target="profile")
+    @Mapping(source = "user.id", target = "id")
+    @Mapping(source = "profile", target="profile")
     @Mapping(source = "online", target = "online")
-    UserDto toDto(User user, BinaryContentDto binaryContentDto, boolean online);
+    UserDto toDto(User user, BinaryContentDto profile, boolean online);
 
+    @Mapping(source = "projection.id", target = "id")
     @Mapping(source = "profile", target = "profile")
     @Mapping(source = "online", target = "online")
     UserDto toDto(UserProjection projection, BinaryContentDto profile, boolean online);
@@ -57,11 +59,14 @@ public interface MapStructMapper {
 
     @Mapping(source = "message.id",target = "id")
     @Mapping(source = "message.channel.id",target = "channelId")
-    @Mapping(source = "userDto",target = "author")
+    @Mapping(source = "author",target = "author")
     @Mapping(source = "attachments",target = "attachments")
-    MessageDto toDto(Message message, UserDto userDto, List<BinaryContentDto> attachments);
+    MessageDto toDto(Message message, UserDto author, List<BinaryContentDto> attachments);
 
-
+    @Mapping(source = "projection.id",target = "id")
+    @Mapping(source = "projection.channelId",target = "channelId")
+    @Mapping(source = "author",target = "author")
+    @Mapping(source = "attachments",target = "attachments")
     MessageDto toDto(MessageProjection projection, UserDto author, List<BinaryContentDto> attachments);
 
 

@@ -16,7 +16,7 @@ import java.nio.file.Path;
 public class LocalConfig {
 
     @Value(value = "${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}")
-    private static Path root;
+    private Path root;
 
     @PostConstruct
     void init(){
@@ -34,40 +34,8 @@ public class LocalConfig {
         }
     }
 
-
-    /*
-    데이터 입출력 매서드
-     */
-    static public void writeFile(String path, byte[] contents){
-        try (BufferedOutputStream stream = output(path)) {
-            stream.write(contents);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static public void delete(String path) {
-        try {
-            Files.delete(resolve(path));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /*
-    Stream 반환 매서드
-     */
-    static public BufferedOutputStream output(String path) throws IOException {
-        return new BufferedOutputStream(Files.newOutputStream(resolve(path)));
-    }
-
-    static public BufferedInputStream input(String path) throws IOException {
-        return new BufferedInputStream(Files.newInputStream(resolve(path)));
-    }
-
-
     // 로컬 경로 resolve 용
-    static private Path resolve(String path){
+    public Path resolvePath(String path){
         return root.resolve(path);
     }
 

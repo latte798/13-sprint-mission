@@ -12,10 +12,12 @@ import com.sprint.mission.discodeit.security.role.Role;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class UserQueryDslImpl implements UserQueryDsl {

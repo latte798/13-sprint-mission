@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.repository.querydsl;
 
 import com.sprint.mission.discodeit.dto.projection.ChannelProjection;
-import com.sprint.mission.discodeit.dto.response.ChannelDto;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

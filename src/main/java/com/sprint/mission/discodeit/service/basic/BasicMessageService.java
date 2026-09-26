@@ -83,7 +83,7 @@ public class BasicMessageService implements MessageService {
 
         messageRepository.save(message);
 
-        log.info("Message Created - {}", message.getId());
+        log.debug("Message Created - {}", message.getId());
 
 
         List<BinaryContentDto> attachmentDtoList = binaryContentRepository
@@ -218,9 +218,14 @@ public class BasicMessageService implements MessageService {
     }
 
     private UserDto getUserDtoFromUser(User user){
+        UUID profileId =
+                Optional.ofNullable(user.getProfile()).isEmpty()
+                ? null
+                : user.getProfile().getId();
+
         return mapStructMapper.toDto(
                 user,
-                binaryContentRepository.getBinaryContentById(user.getProfile().getId()).orElse(null),
+                binaryContentRepository.getBinaryContentById(profileId).orElse(null),
                 sessionService.userOnline(user.getUsername())
         );
     }

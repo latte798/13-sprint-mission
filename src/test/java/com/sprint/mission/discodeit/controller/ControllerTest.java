@@ -1,11 +1,15 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.config.SecurityConfig;
 import com.sprint.mission.discodeit.dto.request.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.mapper.MapStructMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
+import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.role.Role;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -20,6 +24,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,14 +43,18 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+
 @WebMvcTest({
         UserController.class,
         MessageController.class,
         ChannelController.class,
 })
 @Import({
-        PageResponseMapper.class
+        PageResponseMapper.class,
+        SecurityConfig.class
 })
+@WithMockUser
 @DisplayName("Controller Layer test.")
 @Slf4j
 public class ControllerTest {
@@ -54,14 +68,21 @@ public class ControllerTest {
     @MockitoBean
     ChannelService channelService;
 
-
     @Mock
     MapStructMapper mapStructMapper;
+
+    @MockitoBean
+    PersistentTokenRepository persistentTokenRepository;
+    @MockitoBean
+    UserDetailsService userDetailsService;
+    @MockitoBean
+    SessionRegistry sessionRegistry;
 
     @Nested
     @DisplayName("user controller")
     class UserControllerTests {
         private User user = new User("김숙희","ksk@email.com","password",null, Role.USER);
+
 
 
         private UserDto getDto(User user){
@@ -86,7 +107,7 @@ public class ControllerTest {
             // when
             // then
 
-            mockMvc.perform(multipart("/api/users").file(request))
+            mockMvc.perform(multipart("/api/users").file(request).with(csrf()))
                     .andExpect(status().isCreated())
                     .andExpect(content().contentType("application/json"))
                     .andExpect(jsonPath("$.username").value(user.getUsername()));
@@ -118,7 +139,7 @@ public class ControllerTest {
                                 s.setMethod("PATCH");
                                 return s;
                             })
-                            .accept(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON).with(csrf())
                     )
                     .andExpect(status().isOk())
                     .andExpect(content().contentType("application/json"))

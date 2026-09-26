@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.repository.querydsl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.group.AbstractGroupExpression;
-import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -13,6 +11,8 @@ import com.sprint.mission.discodeit.dto.projection.ChannelProjection;
 import com.sprint.mission.discodeit.entity.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.*;
@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 // todo - 파일 데이터 입출력 클래스를 adaptor 레이어로 바꾸어 쿼리 결과 데이터 측에 추가한다.
 
 @RequiredArgsConstructor
+@Repository
+@Slf4j
 public class ChannelQueryDslImpl implements ChannelQueryDsl {
 
     private final JPAQueryFactory jpaQueryFactory;
@@ -140,11 +142,6 @@ public class ChannelQueryDslImpl implements ChannelQueryDsl {
         }
 
         return condition;
-    }
-
-
-    private AbstractGroupExpression<UUID, List<UUID>> userIdList(){
-        return GroupBy.list( user.id );
     }
 
 
